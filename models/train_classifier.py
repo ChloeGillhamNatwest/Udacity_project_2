@@ -25,6 +25,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report
 
+import pickle
+
 def load_data(database_filepath):
     '''
     Function to load in data
@@ -80,27 +82,46 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    function to build model
+    outputs cv'd model pipeline
+    '''
     pipeline = Pipeline([
         ('vect', CountVectorizer()),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier())),
     ])
     
-    print(pipeline.get_params())
-    #params = {'clf__estimator__bootstrap' :[True,False]
-    #          ,'clf__estimator__n_estimators': [5,10,20]}
+    params = {'clf__estimator__min_samples_leaf': [1,2],
+              'clf__estimator__min_samples_split': [.5,2],
+              'clf__estimator__n_estimators': [5,10]}
     
-    #cv = GridSearchCV(pipeline, param_grid=params,cv = 5)
+    cv = GridSearchCV(pipeline, param_grid=params,cv = 2)
     
-    return pipeline
+    return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    '''
+    function to evaluate model performance
+    inputs the model, test data and category names
+    outputs f1,precision and recall for each category
+    '''
+    #make the predictions
+    Y_pred = model.predict(X_test)
+    #pring classif scores
+    print(classification_report(Y_test, 
+                                Y_pred, 
+                                target_names=category_names))
 
 
 def save_model(model, model_filepath):
-    pass
+    '''
+    fn to save model 
+    inputs the model and the filepath
+    outputs pickled model
+    '''
+    pickle.dump(model, open(model_filepath,'wb'))
 
 
 def main():
