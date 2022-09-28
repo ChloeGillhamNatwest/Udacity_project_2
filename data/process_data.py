@@ -90,8 +90,7 @@ def save_data(df, database_filename):
     output: saved df
     '''
     engine = create_engine('sqlite:///data/DisasterResponse.db')
-    df.to_sql('clean_df2', engine, index=False) 
-
+    df.to_sql('clean_df2', engine, index=False,if_exists = 'replace') 
 
 def main():
     if len(sys.argv) == 4:
